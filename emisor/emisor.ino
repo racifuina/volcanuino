@@ -12,16 +12,17 @@ void setup() {
 }
 
 void loop() {
-    if (analogRead(cable1) != 1023) { //si la lectura del anillo de seguridad 1 no es igual a 1023 (5 volts) se envía una alerta
-        sendDanger();
+    if (analogRead(cable1) != 1023 && analogRead(cable2) != 1023) {
+        sendHighDanger();
+    } else if (analogRead(cable1) != 1023) { //si la lectura del anillo de seguridad 1 no es igual a 1023 (5 volts) se envía una alerta
+        sendLowDanger();
     } else if (analogRead(cable2) != 1023) { //si la lectura del anillo de seguridad 2 no es igual a 1023 (5 volts) se envía una alerta
-        sendDanger();
+        sendHighDanger();
     } else { //si ambos anillos se encuentran bien, enviamos comando 0
         sendOK();
     }
     delay(2000); //Espera de 2 segundos entre cada lectura.
 }
-
 
 /*
 void sendOK();
@@ -36,13 +37,25 @@ void sendOK(){
 }
 
 /*
-void sendDanger();
+void sendLowDanger();
 Función encargada de enviar el comando 1 que indica que la lectura
-de algún anillo de seguridad muestra que hay lava. 
+del primer anillo de seguridad muestra que hay lava. 
 */
-void sendDanger() {
+void sendLowDanger() {
     digitalWrite(13, 1); //encender LED del arduino
     controller = "1"; //set comando 1
+    vw_send((uint8_t *)controller, strlen(controller));//envio del comando 
+    vw_wait_tx(); //Esperar a que el mensaje se envie completamente
+}
+
+/*
+void sendHighDanger();
+Función encargada de enviar el comando 1 que indica que la lectura
+del segundo anillo de seguridad muestra que hay lava. 
+*/
+void sendHighDanger() {
+    digitalWrite(13, 1); //encender LED del arduino
+    controller = "2"; //set comando 1
     vw_send((uint8_t *)controller, strlen(controller));//envio del comando 
     vw_wait_tx(); //Esperar a que el mensaje se envie completamente
 }
